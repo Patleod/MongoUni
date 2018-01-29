@@ -1,0 +1,14 @@
+{
+    "name": "social",
+    "version": "0.1.0",
+    "description": "Demonstrating promises",
+    "main": "app.js",
+    "dependencies": {
+        "assert": "^1.4.1",
+        "dotenv": "^1.2.0",
+        "mongodb": "^3.0.1",
+        "twitter": "^1.2.5"
+    },
+    "author": "Shannon Bradshaw",
+    "license": "0BSD"
+}
