@@ -51,21 +51,34 @@ function ItemDAO(database) {
         * to the callback.
         *
         */
-
         var categories = [];
-        var category = {
-            _id: "All",
-            num: 9999
-        };
+        var mydb = this.db.db('mongomart');
+        let collection = mydb.collection("item");
 
-        categories.push(category)
+        let cursor = collection.aggregate(
+            [   { $project: {'category':1,'num':1}},
+                { $group: {'_id': '$category','num':{$sum:1}}},
+                { $sort: { category: 1 } }
+            ],
+            function(err, docs) {
+                assert.equal(err, null);
+                assert.notEqual(docs.length, 0);
+                let allCount = 0;
 
+                docs.forEach(cat => {
+                    categories.push(cat);
+                    allCount += cat.num
+                });
+                categories.push({'_id': 'All', 'num': allCount});
+                callback(categories);
+            }
+        );
         // TODO-lab1A Replace all code above (in this method).
 
         // TODO Include the following line in the appropriate
         // place within your code to pass the categories array to the
         // callback.
-        callback(categories);
+        
     }
 
 
