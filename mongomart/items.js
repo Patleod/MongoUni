@@ -111,14 +111,15 @@ function ItemDAO(database) {
 
         let mydb = this.db.db('mongomart');
         let collection = mydb.collection("item");
-        let match =  "{$match: {'category': '" + category + "'}";
         let pipeline = [];
 
         if(category != 'All') {
             pipeline.push({ $match: {'category': category}});
         }
         pipeline.push({ $sort: { _id: 1 } });
-       
+        pipeline.push({ $skip: page*itemsPerPage});
+        pipeline.push({ $limit: itemsPerPage});
+        
         let cursor = collection.aggregate(
             pipeline,
             function(err, docs) {
