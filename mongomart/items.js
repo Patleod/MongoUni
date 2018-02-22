@@ -119,7 +119,7 @@ function ItemDAO(database) {
         pipeline.push({ $sort: { _id: 1 } });
         pipeline.push({ $skip: page*itemsPerPage});
         pipeline.push({ $limit: itemsPerPage});
-        
+
         let cursor = collection.aggregate(
             pipeline,
             function(err, docs) {
@@ -132,7 +132,7 @@ function ItemDAO(database) {
                 callback(pageItems);
             }
     )
-
+    
         // TODO-lab1B Replace all code above (in this method).
 
         // TODO Include the following line in the appropriate
@@ -143,9 +143,21 @@ function ItemDAO(database) {
 
     this.getNumItems = function(category, callback) {
         "use strict";
+        let mydb = this.db.db('mongomart');
 
         var numItems = 0;
+        var queryDoc;
+        if (category == "All") {
+            queryDoc = {};
+        } else {
+            queryDoc = {category: category};
+        }
 
+        mydb.collection("item").find(queryDoc).count(function(err, numItems) {
+            assert.equal(null, err);
+            callback(numItems);
+        });
+    
         /*
          * TODO-lab1C:
          *
@@ -163,7 +175,7 @@ function ItemDAO(database) {
 
          // TODO Include the following line in the appropriate
          // place within your code to pass the count to the callback.
-        callback(numItems);
+        //callback(numItems);
     }
 
 
