@@ -131,7 +131,7 @@ function ItemDAO(database) {
                 });
                 callback(pageItems);
             }
-    )
+        )
     
         // TODO-lab1B Replace all code above (in this method).
 
@@ -206,26 +206,46 @@ function ItemDAO(database) {
          *
          */
 
-        var item = this.createDummyItem();
-        var items = [];
-        for (var i=0; i<5; i++) {
-            items.push(item);
+        let mydb = this.db.db('mongomart');
+        let queryDoc;
+
+        if (query.trim() == "") {
+            queryDoc = {};
+        } else {
+            queryDoc = { "$text": {"$search": query} };
         }
 
+        let cursor = mydb.collection("item").find(queryDoc);
+        cursor.skip(page*itemsPerPage);
+        cursor.limit(itemsPerPage);
+        cursor.sort({_id:1});
+        cursor.toArray(function(err, pageItems) {
+            assert.equal(null, err);
+            callback(pageItems);
+        });
         // TODO-lab2A Replace all code above (in this method).
 
         // TODO Include the following line in the appropriate
         // place within your code to pass the items for the selected page
         // of search results to the callback.
-        callback(items);
+        //callback(items);
     }
 
 
     this.getNumSearchItems = function(query, callback) {
         "use strict";
 
-        var numItems = 0;
-
+        let mydb = this.db.db('mongomart');
+        let queryDoc = "";
+        if (query.trim() == "") {
+            queryDoc = {};
+        } else {
+            queryDoc = { "$text": {"$search": query} };
+        }
+        mydb.collection("item").find(queryDoc).count(function(err, numItems) {
+            assert.equal(null, err);
+            callback(numItems);
+        });
         /*
         * TODO-lab2B
         *
@@ -239,13 +259,24 @@ function ItemDAO(database) {
         * simply do this in the mongo shell.
         */
 
-        callback(numItems);
+        //callback(numItems);
     }
 
 
     this.getItem = function(itemId, callback) {
         "use strict";
-
+        let mydb = this.db.db('mongomart');
+        let queryDoc = { _id: itemId };
+        
+        mydb.collection("item").find(queryDoc).toArray(function(err, docs) {
+            assert.equal(null, err);
+            var itemDoc = null;
+            if (docs.length > 0) {
+                itemDoc = docs[0];
+            }
+    
+            callback(itemDoc);
+        });
         /*
          * TODO-lab3
          *
@@ -256,14 +287,13 @@ function ItemDAO(database) {
          *
          */
 
-        var item = this.createDummyItem();
-
+        
         // TODO-lab3 Replace all code above (in this method).
 
         // TODO Include the following line in the appropriate
         // place within your code to pass the matching item
         // to the callback.
-        callback(item);
+        //callback(item);
     }
 
 
