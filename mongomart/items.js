@@ -1,3 +1,4 @@
+
 /*
   Copyright (c) 2008 - 2016 MongoDB, Inc. <http://mongodb.com>
 
@@ -106,19 +107,36 @@ function ItemDAO(database) {
          * than you do for other categories.
          *
          */
-
-        var pageItem = this.createDummyItem();
         var pageItems = [];
-        for (var i=0; i<5; i++) {
-            pageItems.push(pageItem);
+
+        let mydb = this.db.db('mongomart');
+        let collection = mydb.collection("item");
+        let match =  "{$match: {'category': '" + category + "'}";
+        let pipeline = [];
+
+        if(category != 'All') {
+            pipeline.push({ $match: {'category': category}});
         }
+        pipeline.push({ $sort: { _id: 1 } });
+       
+        let cursor = collection.aggregate(
+            pipeline,
+            function(err, docs) {
+                assert.equal(err, null);
+                assert.notEqual(docs.length, 0);
+
+                docs.forEach(item => {
+                    pageItems.push(item);
+                });
+                callback(pageItems);
+            }
+    )
 
         // TODO-lab1B Replace all code above (in this method).
 
         // TODO Include the following line in the appropriate
         // place within your code to pass the items for the selected page
         // to the callback.
-        callback(pageItems);
     }
 
 
