@@ -88,9 +88,25 @@ function CartDAO(database) {
          *
          */
 
-        callback(null);
+        let collection = this.mydb.collection("cart");
+        let pipeline = [];
 
-        // TODO-lab6 Replace all code above (in this method).
+        pipeline.push({ $match: {userId:userId,"items._id":itemId}});
+        pipeline.push({ $unwind: "$items"});
+        pipeline.push({ $match: {"items._id":itemId}});
+        pipeline.push({ $project: {_id:0,"items":1}});
+
+        let cursor = collection.aggregate(
+            pipeline,
+            function(err, docs) {
+                assert.equal(err, null);
+                if(docs.length){
+                    callback(docs[0].items);
+                }else{
+                    callback(null);
+                }
+            }
+        )        // TODO-lab6 Replace all code above (in this method).
     }
 
 
