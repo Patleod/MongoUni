@@ -195,16 +195,22 @@ function CartDAO(database) {
         * https://docs.mongodb.org/manual/reference/operator/update/positional/
         *
         */
-
-        var userCart = {
-            userId: userId,
-            items: []
-        }
-        var dummyItem = this.createDummyItem();
-        dummyItem.quantity = quantity;
-        userCart.items.push(dummyItem);
-        callback(userCart);
-
+       let operation = {};
+       if(quantity == 0) {
+           operation = { $pull: { items: { _id: itemId}}};
+       }else{
+           operation = { "$set": { "items.$.quantity": quantity }};
+       }
+       this.mydb.collection("cart").findOneAndUpdate(
+            { userId:userId,"items._id": itemId },
+            operation,
+            { returnOriginal: false },
+            function(err, result) {
+                assert.equal(null, err);
+                callback(result.value);
+            }
+        );
+       
         // TODO-lab7 Replace all code above (in this method).
 
     }
