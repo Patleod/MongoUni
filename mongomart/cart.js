@@ -23,7 +23,7 @@ function CartDAO(database) {
     "use strict";
 
     this.db = database;
-
+    this.mydb = database.db('mongomart');
 
     this.getCart = function(userId, callback) {
         "use strict";
@@ -38,19 +38,25 @@ function CartDAO(database) {
         *
         */
 
-        var userCart = {
+        /*var userCart = {
             userId: userId,
             items: []
         }
         var dummyItem = this.createDummyItem();
         userCart.items.push(dummyItem);
-
+        */
+       this.mydb.collection('cart').find({userId:userId}).limit(1).next(function(err, userCart){
+            assert.equal(null, err);
+            assert.ok(userCart);
+            
+            callback(userCart);
+        });
         // TODO-lab5 Replace all code above (in this method).
 
         // TODO Include the following line in the appropriate
         // place within your code to pass the userCart to the
         // callback.
-        callback(userCart);
+        //callback(userCart);
     }
 
 
@@ -110,7 +116,7 @@ function CartDAO(database) {
         "use strict";
 
         // Will update the first document found matching the query document.
-        this.db.collection("cart").findOneAndUpdate(
+        this.mydb.collection("cart").findOneAndUpdate(
             // query for the cart with the userId passed as a parameter.
             {userId: userId},
             // update the user's cart by pushing an item onto the items array
@@ -138,7 +144,7 @@ function CartDAO(database) {
 
           Without all the comments this code looks written as follows.
 
-        this.db.collection("cart").findOneAndUpdate(
+        this.mydb.collection("cart").findOneAndUpdate(
             {userId: userId},
             {"$push": {items: item}},
             {
